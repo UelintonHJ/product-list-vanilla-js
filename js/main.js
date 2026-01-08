@@ -6,14 +6,16 @@ const container = document.querySelector('#products');
 const searchInput = document.querySelector('#search');
 
 let products = [];
+let isLoaded = false;
 
 function renderProducts(list) {
     clearElement(container);
 
     if (list.length === 0) {
-        container.appendChild(
-            createError('Nenhum produto encontrado.')
-        );
+        const empty = document.createElement('p');
+        empty.textContent = 'Nenhum produto encontrado.';
+        empty.classList.add('empty');
+        container.appendChild(empty);
         return;
     }
 
@@ -28,7 +30,8 @@ async function loadProducts() {
     container.appendChild(createLoading());
 
     try {
-        const products = await getProducts();
+        products = await getProducts();
+        isLoaded = true;
         renderProducts(products);
     } catch (error) {
         clearElement(container);
@@ -39,7 +42,14 @@ async function loadProducts() {
 }
 
 searchInput.addEventListener('input', (event) => {
-    const value = event.target.value.toLowerCase();
+    if (!isLoaded) return;
+    
+    const value = event.target.value.trim().toLowerCase();
+
+    if (value === '') {
+        renderProducts(products);
+        return;
+    }
 
     const filteredProducts = products.filter(product =>
         product.title.toLowerCase().includes(value)
