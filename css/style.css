@@ -3,7 +3,16 @@ body {
     background: #FFFDF9;
 }
 
-#product {
+#search {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    border: 1px solid #FEAF11;
+}
+
+#products {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
