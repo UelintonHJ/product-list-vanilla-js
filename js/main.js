@@ -15,6 +15,30 @@ let currentPage = 1;
 const itemsPerPage = 6;
 let isLoaded = false;
 
+function getQueryParams() {
+    const  params = new URLSearchParams(window.location.search);
+
+    return {
+        search: params.get('search') || '',
+        category: params.get('category') || '',
+        page: Number(params.get('page')) || 1
+    };
+}
+
+function updateURL() {
+    const params = new URLSearchParams();
+
+    const search = searchInput.value.trim();
+    const category = categoryFilter.value;
+
+    if (search) params.set('search', search);
+    if (category) params.set('category', category);
+    if (currentPage > 1) params.set('page', currentPage);
+
+    const newURL = `${window.location.pathname}?${params.toString()}`;
+    window.history.pushState({}, '', newURL);
+}
+
 function renderSkeletons(quantity = itemsPerPage) {
     clearElement(container);
 
@@ -45,7 +69,7 @@ function loadCategories(products) {
     });
 }
 
-function applyFilters() {
+function applyFilters({ updateHistory = true} = {}) {
     const searchValue = searchInput.value.trim().toLowerCase();
     const selectedCategory = categoryFilter.value;
 
@@ -60,6 +84,11 @@ function applyFilters() {
     });
 
     currentPage = 1;
+
+    if (updateHistory) {
+        updateURL();
+    }
+
     renderProducts();
 }
 
@@ -94,6 +123,7 @@ function renderProducts() {
         itemsPerPage,
         onPageChange: (page) => {
             currentPage = page;
+            updateURL();
             renderProducts();
         }
     });
@@ -106,9 +136,15 @@ async function loadProducts() {
         products = await getProducts();
         filteredProducts = products;
         loadCategories(products)
-        currentPage = 1;
+
+        const { search, category, page } = getQueryParams();
+
+        searchInput.value = search;
+        categoryFilter.value = category;
+        currentPage = page;
+
         isLoaded = true;
-        renderProducts();
+        applyFilters({ updateHistory: false });
     } catch (error) {
         clearElement(container);
         container.appendChild(
@@ -127,6 +163,16 @@ searchInput.addEventListener('input', debouncedSearch);
 categoryFilter.addEventListener('change', () => {
     if (!isLoaded) return;
     applyFilters();
+});
+
+window.addEventListener('popstate', () => {
+    const { search, category, page } = getQueryParams();
+
+    searchInput.value = search;
+    categoryFilter.value = category;
+    currentPage = page;
+
+    applyFilters({ updateHistory: false });
 });
 
 loadProducts();
