@@ -3,7 +3,8 @@ export function Pagination({
     currentPage,
     totalItems,
     itemsPerPage,
-    onPageChange
+    onPageChange,
+    maxVisiblePages = 5
 }) {
     container.innerHTML = '';
 
@@ -11,30 +12,52 @@ export function Pagination({
 
     if (totalPages <= 1) return;
 
-    const prevButton = document.createElement('button');
-    prevButton.textContent = 'Anterior';
-    prevButton.disabled = currentPage === 1;
+    const createButton = (label, disabled, onClick) => {
+        const button = document.createElement('button');
+        button.textContent = label;
+        button.disabled = disabled;
+        button.addEventListener('click', onClick);
+        return button;
+    };
 
-    const nextButton = document.createElement('button');
-    nextButton.textContent = 'Próximo';
-    nextButton.disabled = currentPage === totalPages;
+    container.appendChild(
+        createButton('Anterior', currentPage === 1, () =>
+            onPageChange(currentPage - 1)
+        )
+    );
 
-    const pageInfo = document.createElement('span');
-    pageInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+    let startPage = Math.max(
+        1,
+        currentPage - Math.floor(maxVisiblePages / 2)
+    );
 
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) {
-            onPageChange(currentPage - 1);
+    let endPage = startPage + maxVisiblePages - 1;
+
+    if (endPage > totalPages) {
+        endPage = totalPages;
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let page = startPage; page <= endPage; page++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = page;
+        pageButton.classList.add('page-number');
+
+        if (page === currentPage) {
+            pageButton.classList.add('active');
+            pageButton.disabled = true;
         }
-    });
 
-    nextButton.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            onPageChange(currentPage + 1);
-        }
-    });
+        pageButton.addEventListener('click', () => {
+            onPageChange(page);
+        });
 
-    container.appendChild(prevButton);
-    container.appendChild(pageInfo);
-    container.appendChild(nextButton);
+        container.appendChild(pageButton);
+    }
+
+    container.appendChild(
+        createButton('Próximo', currentPage === totalPages, () =>
+            onPageChange(currentPage + 1)
+        )
+    );
 }

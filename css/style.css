@@ -70,6 +70,26 @@ body {
     cursor: not-allowed;;
 }
 
+.pagination .page-number {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #FEAF11;
+    background: transparent;
+    color: #005D65;
+    cursor: pointer;
+}
+
+.pagination .page-number:hover {
+    background: rgba(248, 192, 8, 0.2);
+}
+
+.pagination .page-number.active {
+    background: #FEAF11;
+    color: #FFFDF9;
+    font-weight: bold;
+    cursor: default;
+}
+
 .skeleton {
     background: #A69DA5;
     border-radius: 8px;
