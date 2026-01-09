@@ -34,6 +34,28 @@ body {
     color: #005D65;
 }
 
-.error {
+.empty {
     color: red;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.pagination button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: #FEAF11;
+    color: #FFFDF9;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;;
 }
