@@ -8,6 +8,9 @@ const container = document.querySelector('#products');
 const searchInput = document.querySelector('#search');
 const categoryFilter = document.querySelector('#categoryFilter');
 const paginationContainer = document.querySelector('#pagination');
+const subtleLoading = document.createElement('div');
+subtleLoading.className = 'subtle-loading';
+subtleLoading.textContent = 'Buscando...';
 
 let products = [];
 let filteredProducts = [];
@@ -70,6 +73,18 @@ function loadCategories(products) {
     });
 }
 
+function showSubtleLoading() {
+    if (!subtleLoading.isConnected) {
+        container.before(subtleLoading);
+    }
+}
+
+function hideSubtleLoading() {
+    if (subtleLoading.isConnected) {
+        subtleLoading.remove();
+    }
+}
+
 function applyFilters({ updateHistory = true} = {}) {
     const searchValue = searchInput.value.trim().toLowerCase();
     const selectedCategory = categoryFilter.value;
@@ -101,6 +116,7 @@ function getPaginatedProducts() {
 }
 
 function renderProducts() {
+    hideSubtleLoading();
     clearElement(container);
 
     const paginatedProducts = getPaginatedProducts();
@@ -159,7 +175,11 @@ const debouncedSearch = debounce((event) => {
     applyFilters();
 }, DEBOUNCE_DELAY);
 
-searchInput.addEventListener('input', debouncedSearch);
+searchInput.addEventListener('input', () => {
+    if (!isLoaded) return;
+    showSubtleLoading();
+    debouncedSearch();
+});
 
 categoryFilter.addEventListener('change', () => {
     if (!isLoaded) return;
