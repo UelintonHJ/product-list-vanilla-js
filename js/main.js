@@ -14,6 +14,17 @@ let currentPage = 1;
 const itemsPerPage = 6;
 let isLoaded = false;
 
+function debounce(callback, delay = 300) {
+    let timer;
+
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            callback(...args);
+        }, delay);
+    }
+}
+
 function getPaginatedProducts() {
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
@@ -72,18 +83,14 @@ async function loadProducts() {
     }
 }
 
-searchInput.addEventListener('input', (event) => {
+const debouncedSearch = debounce((event) => {
     if (!isLoaded) return;
-    
+
     const value = event.target.value.trim().toLowerCase();
+    handleSearch(value);
+}, 300);
 
-    filteredProducts = products.filter(product =>
-        product.title.toLowerCase().includes(value)
-    );
-
-    currentPage = 1;
-    renderProducts();
-});
+searchInput.addEventListener('input', debouncedSearch);
 
 prevButton.addEventListener('click', () => {
     if (currentPage > 1) {
@@ -100,5 +107,14 @@ nextButton.addEventListener('click', () => {
         renderProducts();
     }
 });
+
+function handleSearch(value) {
+    filteredProducts = products. filter(product =>
+        product.title.toLowerCase().includes(value)
+    );
+
+    currentPage = 1;
+    renderProducts();
+}
 
 loadProducts();
