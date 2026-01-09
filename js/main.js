@@ -12,7 +12,8 @@ const paginationContainer = document.querySelector('#pagination');
 let products = [];
 let filteredProducts = [];
 let currentPage = 1;
-const itemsPerPage = 6;
+const ITEMS_PER_PAGE = 6;
+const DEBOUNCE_DELAY = 300;
 let isLoaded = false;
 
 function getQueryParams() {
@@ -39,7 +40,7 @@ function updateURL() {
     window.history.pushState({}, '', newURL);
 }
 
-function renderSkeletons(quantity = itemsPerPage) {
+function renderSkeletons(quantity = ITEMS_PER_PAGE) {
     clearElement(container);
 
     for (let i = 0; i < quantity; i++) {
@@ -47,7 +48,7 @@ function renderSkeletons(quantity = itemsPerPage) {
     }
 }
 
-function debounce(callback, delay = 300) {
+function debounce(callback, delay) {
     let timer;
 
     return (...args) => {
@@ -93,8 +94,8 @@ function applyFilters({ updateHistory = true} = {}) {
 }
 
 function getPaginatedProducts() {
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
 
     return filteredProducts.slice(start, end);
 }
@@ -120,7 +121,7 @@ function renderProducts() {
         container: paginationContainer,
         currentPage,
         totalItems: filteredProducts.length,
-        itemsPerPage,
+        ITEMS_PER_PAGE,
         onPageChange: (page) => {
             currentPage = page;
             updateURL();
@@ -156,7 +157,7 @@ async function loadProducts() {
 const debouncedSearch = debounce((event) => {
     if (!isLoaded) return;
     applyFilters();
-}, 300);
+}, DEBOUNCE_DELAY);
 
 searchInput.addEventListener('input', debouncedSearch);
 
