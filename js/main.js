@@ -2,13 +2,12 @@ import { getProducts } from './services/api.js';
 import { ProductCard } from './components/ProductCard.js';
 import { clearElement, createLoading, createError } from './utils/dom.js';
 import { SkeletonCard } from './components/SkeletonCard.js';
+import { Pagination } from './components/Pagination.js';
 
 const container = document.querySelector('#products');
 const searchInput = document.querySelector('#search');
-const prevButton = document.querySelector('#prevPage');
-const nextButton = document.querySelector('#nextPage');
-const pageInfo = document.querySelector('#pageInfo');
 const categoryFilter = document.querySelector('#categoryFilter');
+const paginationContainer = document.querySelector('#pagination');
 
 let products = [];
 let filteredProducts = [];
@@ -71,17 +70,6 @@ function getPaginatedProducts() {
     return filteredProducts.slice(start, end);
 }
 
-function updatePagination() {
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-
-    pageInfo.textContent = totalPages
-    ? `Página ${currentPage} de ${totalPages}`
-    : '';
-
-    prevButton.disabled = currentPage === 1;
-    nextButton.disabled = currentPage === totalPages || totalPages === 0;
-}
-
 function renderProducts() {
     clearElement(container);
 
@@ -92,16 +80,23 @@ function renderProducts() {
         empty.textContent = 'Nenhum produto encontrado.';
         empty.classList.add('empty');
         container.appendChild(empty);
-        updatePagination();
-        return;
+    } else {
+        paginatedProducts.forEach(product => {
+            const card = ProductCard(product);
+            container.appendChild(card);
+        });
     }
 
-    paginatedProducts.forEach(products => {
-        const card = ProductCard(products);
-        container.appendChild(card);
+    Pagination({
+        container: paginationContainer,
+        currentPage,
+        totalItems: filteredProducts.length,
+        itemsPerPage,
+        onPageChange: (page) => {
+            currentPage = page;
+            renderProducts();
+        }
     });
-
-    updatePagination();
 }
 
 async function loadProducts() {
@@ -132,22 +127,6 @@ searchInput.addEventListener('input', debouncedSearch);
 categoryFilter.addEventListener('change', () => {
     if (!isLoaded) return;
     applyFilters();
-});
-
-prevButton.addEventListener('click', () => {
-    if (currentPage > 1) {
-        currentPage--;
-        renderProducts();
-    }
-});
-
-nextButton.addEventListener('click', () => {
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderProducts();
-    }
 });
 
 loadProducts();
