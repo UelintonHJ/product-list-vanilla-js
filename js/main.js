@@ -1,6 +1,7 @@
 import { getProducts } from './services/api.js';
 import { ProductCard } from './components/ProductCard.js';
 import { clearElement, createLoading, createError } from './utils/dom.js';
+import { SkeletonCard } from './components/SkeletonCard.js';
 
 const container = document.querySelector('#products');
 const searchInput = document.querySelector('#search');
@@ -14,6 +15,14 @@ let filteredProducts = [];
 let currentPage = 1;
 const itemsPerPage = 6;
 let isLoaded = false;
+
+function renderSkeletons(quantity = itemsPerPage) {
+    clearElement(container);
+
+    for (let i = 0; i < quantity; i++) {
+        container.appendChild(SkeletonCard());
+    }
+}
 
 function debounce(callback, delay = 300) {
     let timer;
@@ -96,8 +105,7 @@ function renderProducts() {
 }
 
 async function loadProducts() {
-    clearElement(container);
-    container.appendChild(createLoading());
+    renderSkeletons();
 
     try {
         products = await getProducts();
