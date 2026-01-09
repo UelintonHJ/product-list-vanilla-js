@@ -7,6 +7,7 @@ const searchInput = document.querySelector('#search');
 const prevButton = document.querySelector('#prevPage');
 const nextButton = document.querySelector('#nextPage');
 const pageInfo = document.querySelector('#pageInfo');
+const categoryFilter = document.querySelector('#categoryFilter');
 
 let products = [];
 let filteredProducts = [];
@@ -23,6 +24,35 @@ function debounce(callback, delay = 300) {
             callback(...args);
         }, delay);
     }
+}
+
+function loadCategories(products) {
+    const categories = [...new Set(products.map(product => product.category))];
+
+    categories.forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilter.appendChild(option);
+    });
+}
+
+function applyFilters() {
+    const searchValue = searchInput.value.trim().toLowerCase();
+    const selectedCategory = categoryFilter.value;
+
+    filteredProducts = products.filter(product => {
+        const matchesSearch =
+            product.title.toLowerCase().includes(searchValue);
+
+            const matchesCategory =
+            selectedCategory === '' || product.category === selectedCategory;
+
+            return matchesSearch && matchesCategory;
+    });
+
+    currentPage = 1;
+    renderProducts();
 }
 
 function getPaginatedProducts() {
@@ -43,7 +73,7 @@ function updatePagination() {
     nextButton.disabled = currentPage === totalPages || totalPages === 0;
 }
 
-function renderProducts(list) {
+function renderProducts() {
     clearElement(container);
 
     const paginatedProducts = getPaginatedProducts();
@@ -72,6 +102,7 @@ async function loadProducts() {
     try {
         products = await getProducts();
         filteredProducts = products;
+        loadCategories(products)
         currentPage = 1;
         isLoaded = true;
         renderProducts();
@@ -85,12 +116,15 @@ async function loadProducts() {
 
 const debouncedSearch = debounce((event) => {
     if (!isLoaded) return;
-
-    const value = event.target.value.trim().toLowerCase();
-    handleSearch(value);
+    applyFilters();
 }, 300);
 
 searchInput.addEventListener('input', debouncedSearch);
+
+categoryFilter.addEventListener('change', () => {
+    if (!isLoaded) return;
+    applyFilters();
+});
 
 prevButton.addEventListener('click', () => {
     if (currentPage > 1) {
@@ -107,14 +141,5 @@ nextButton.addEventListener('click', () => {
         renderProducts();
     }
 });
-
-function handleSearch(value) {
-    filteredProducts = products. filter(product =>
-        product.title.toLowerCase().includes(value)
-    );
-
-    currentPage = 1;
-    renderProducts();
-}
 
 loadProducts();

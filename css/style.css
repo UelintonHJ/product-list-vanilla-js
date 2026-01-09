@@ -12,6 +12,16 @@ body {
     border: 1px solid #FEAF11;
 }
 
+#categoryFilter {
+    width: 100%;
+    max-width: 250px;
+    padding: 8px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    border: 1px solid #FEAF11;
+    background: #FFFDF9;
+}
+
 #products {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
