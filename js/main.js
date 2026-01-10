@@ -137,7 +137,7 @@ function renderProducts() {
         container: paginationContainer,
         currentPage,
         totalItems: filteredProducts.length,
-        ITEMS_PER_PAGE,
+        itemsPerPage:ITEMS_PER_PAGE,
         onPageChange: (page) => {
             currentPage = page;
             updateURL();

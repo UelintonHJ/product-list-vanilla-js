@@ -4,11 +4,19 @@ export function Pagination({
     totalItems,
     itemsPerPage,
     onPageChange,
-    maxVisiblePages = 5
+    maxVisiblePages = 4
 }) {
     container.innerHTML = '';
 
     const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    if (currentPage > totalPages) {
+        currentPage = totalPages;
+    }
+
+    if (currentPage < 1) {
+        currentPage = 1;
+    }
 
     if (totalPages <= 1) return;
 
@@ -21,9 +29,11 @@ export function Pagination({
     };
 
     container.appendChild(
-        createButton('Anterior', currentPage === 1, () =>
-            onPageChange(currentPage - 1)
-        )
+        createButton('Anterior', currentPage === 1, () => {
+            if (currentPage > 1) {
+                onPageChange(currentPage - 1);
+            }
+        })
     );
 
     let startPage = Math.max(
@@ -49,15 +59,19 @@ export function Pagination({
         }
 
         pageButton.addEventListener('click', () => {
-            onPageChange(page);
+            if (page >= 1 && page <= totalPages) {
+                onPageChange(page);
+            }            
         });
 
         container.appendChild(pageButton);
     }
 
     container.appendChild(
-        createButton('Próximo', currentPage === totalPages, () =>
-            onPageChange(currentPage + 1)
-        )
+        createButton('Próximo', currentPage === totalPages, () => {
+            if (currentPage < totalPages) {
+                onPageChange(currentPage + 1);
+            }
+        })
     );
 }
