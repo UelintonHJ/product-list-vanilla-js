@@ -1,43 +1,133 @@
+:root {
+    --background: #F8FAFC;
+    --surface: #FFFFFF;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --border: #E2E8F0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: sans-serif;
-    background: #FFFDF9;
+    font-family: Inter, sans-serif;
+    background: var(--background);
+    color: var(--text-primary);
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+.container {
+    width: min(1200px, 90%);
+    margin: 0 auto;
+    padding: 40px 0;
+}
+
+.hero {
+    margin-bottom: 32px;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.hero p {
+    color: var(--text-secondary);
+}
+
+select:focus-visible,
+input:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.filters {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    background: var(--surface);
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
 }
 
 #search {
-    width: 100%;
-    max-width: 400px;
-    padding: 8px;
-    margin-bottom: 16px;
-    border-radius: 6px;
-    border: 1px solid #FEAF11;
+    flex: 1;
+    min-width: 250px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: white;
 }
 
 #categoryFilter {
-    width: 100%;
-    max-width: 250px;
-    padding: 8px;
-    margin-bottom: 16px;
-    border-radius: 6px;
-    border: 1px solid #FEAF11;
-    background: #FFFDF9;
+    min-width: 220px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: white;
 }
 
 #products {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
 }
 
 .card {
-    background: #FEAF11;
-    padding: 12px;
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
 }
 
 .card img {
-    width: 100%;
-    height: 150px;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
+}
+
+.card-image {
+    height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.card h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: auto;
+    padding-top: 12px;
 }
 
 .loading {
@@ -45,7 +135,10 @@ body {
 }
 
 .empty {
-    color: red;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 40px;
+    font-size: 1rem;
 }
 
 .pagination {
@@ -53,45 +146,48 @@ body {
     justify-content: center;
     align-items: center;
     gap: 12px;
-    margin-top: 24px;
+    margin-top: 40px;
 }
 
 .pagination button {
-    padding: 6px 12px;
+    padding: 0px 16px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
-    background: #FEAF11;
+    background: var(--primary);
     color: #FFFDF9;
+    min-width: 40px;
+    height: 40px;
 }
 
 .pagination button:disabled {
     opacity: 0.5;
-    cursor: not-allowed;;
+    cursor: not-allowed;
 }
 
 .pagination .page-number {
     padding: 6px 10px;
     border-radius: 6px;
-    border: 1px solid #FEAF11;
+    border: 1px solid var(--primary);
     background: transparent;
     color: #005D65;
     cursor: pointer;
 }
 
 .pagination .page-number:hover {
-    background: rgba(248, 192, 8, 0.2);
+    background: var(--primary-hover);
 }
 
 .pagination .page-number.active {
-    background: #FEAF11;
+    background: var(--primary);
     color: #FFFDF9;
     font-weight: bold;
     cursor: default;
 }
 
 .skeleton {
-    background: #A69DA5;
+    background: white;
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 12px;
     animation: pulse 1.4s ease-in-out infinite;
@@ -100,14 +196,14 @@ body {
 .skeleton-image {
     width: 100%;
     height: 150px;
-    background: #9FA4A9;
+    background: #E2E8F0;
     border-radius: 4px;
     margin-bottom: 8px;
 }
 
 .skeleton-text {
     height: 14px;
-    background: #9FA4A9;
+    background: #E2E8F0;
     border-radius: 4px;
     margin-bottom: 8px;
 }
