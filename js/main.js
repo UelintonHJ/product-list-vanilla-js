@@ -11,6 +11,7 @@ const paginationContainer = document.querySelector('#pagination');
 const subtleLoading = document.createElement('div');
 subtleLoading.className = 'subtle-loading';
 subtleLoading.textContent = 'Buscando...';
+const sortSelect = document.querySelector('#sort');
 
 let products = [];
 let filteredProducts = [];
@@ -25,7 +26,8 @@ function getQueryParams() {
     return {
         search: params.get('search') || '',
         category: params.get('category') || '',
-        page: Number(params.get('page')) || 1
+        page: Number(params.get('page')) || 1,
+        sort: params.get('sort') || ''
     };
 }
 
@@ -41,6 +43,12 @@ function updateURL() {
 
     const newURL = `${window.location.pathname}?${params.toString()}`;
     window.history.pushState({}, '', newURL);
+
+    const sort = sortSelect.value;
+
+    if (sort) {
+        params.set('sort', sort);
+    }
 }
 
 function renderSkeletons(quantity = ITEMS_PER_PAGE) {
@@ -85,7 +93,7 @@ function hideSubtleLoading() {
     }
 }
 
-function applyFilters({ updateHistory = true} = {}) {
+function applyFilters({ updateHistory = true, resetPage = true } = {}) {
     const searchValue = searchInput.value.trim().toLowerCase();
     const selectedCategory = categoryFilter.value;
 
@@ -99,13 +107,33 @@ function applyFilters({ updateHistory = true} = {}) {
             return matchesSearch && matchesCategory;
     });
 
-    currentPage = 1;
+    filteredProducts = sortProducts(filteredProducts);
+
+    if (resetPage) currentPage = 1;
 
     if (updateHistory) {
         updateURL();
     }
 
     renderProducts();
+}
+
+function sortProducts(list) {
+    const sortValue = sortSelect.value;
+
+    switch (sortValue) {
+        case 'price-asc':
+            return [...list].sort((a, b) => a.price - b.price);
+
+        case 'price-desc':
+            return [...list].sort((a, b) => b.price - a.price);
+
+        case 'rating-desc':
+            return [...list].sort((a, b) => (b.rating?.rate ?? 0) - (a.rating?.rate ?? 0));
+
+        default:
+            return list;
+    }
 }
 
 function getPaginatedProducts() {
@@ -115,7 +143,19 @@ function getPaginatedProducts() {
     return filteredProducts.slice(start, end);
 }
 
+function normalizeProduct(product) {
+    return {
+        title: product.title,
+        price: product.price,
+        image: product.image,
+        rating: product.rating ?? { rate: 0, count: 0 },
+        description: product.description ?? '',
+        category: product.category
+    };
+}
+
 function renderProducts() {
+    if (!isLoaded) return;
     hideSubtleLoading();
     clearElement(container);
 
@@ -128,7 +168,7 @@ function renderProducts() {
         container.appendChild(empty);
     } else {
         paginatedProducts.forEach(product => {
-            const card = ProductCard(product);
+            const card = ProductCard(normalizeProduct(product));
             container.appendChild(card);
         });
     }
@@ -154,11 +194,12 @@ async function loadProducts() {
         filteredProducts = products;
         loadCategories(products)
 
-        const { search, category, page } = getQueryParams();
+        const { search, category, page, sort } = getQueryParams();
 
         searchInput.value = search;
         categoryFilter.value = category;
         currentPage = page;
+        sortSelect.value = sort;
 
         isLoaded = true;
         applyFilters({ updateHistory: false });
@@ -177,7 +218,6 @@ const debouncedSearch = debounce((event) => {
 
 searchInput.addEventListener('input', () => {
     if (!isLoaded) return;
-    showSubtleLoading();
     debouncedSearch();
 });
 
@@ -187,13 +227,20 @@ categoryFilter.addEventListener('change', () => {
 });
 
 window.addEventListener('popstate', () => {
-    const { search, category, page } = getQueryParams();
+    const { search, category, page, sort } = getQueryParams();
 
     searchInput.value = search;
     categoryFilter.value = category;
     currentPage = page;
+    sortSelect.value = sort;
 
     applyFilters({ updateHistory: false });
 });
+
+sortSelect.addEventListener('change', () => {
+        if (!isLoaded) return;
+
+        applyFilters();
+    })
 
 loadProducts();
