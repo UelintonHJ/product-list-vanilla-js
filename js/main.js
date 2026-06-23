@@ -1,8 +1,9 @@
 import { getProducts } from './services/api.js';
 import { ProductCard } from './components/ProductCard.js';
-import { clearElement, createLoading, createError } from './utils/dom.js';
+import { clearElement, createError } from './utils/dom.js';
 import { SkeletonCard } from './components/SkeletonCard.js';
 import { Pagination } from './components/Pagination.js';
+import { getQueryParams ,buildQueryParams } from './utils/url.js';
 
 const container = document.querySelector('#products');
 const searchInput = document.querySelector('#search');
@@ -20,35 +21,19 @@ const ITEMS_PER_PAGE = 6;
 const DEBOUNCE_DELAY = 300;
 let isLoaded = false;
 
-function getQueryParams() {
-    const  params = new URLSearchParams(window.location.search);
-
-    return {
-        search: params.get('search') || '',
-        category: params.get('category') || '',
-        page: Number(params.get('page')) || 1,
-        sort: params.get('sort') || ''
-    };
-}
-
 function updateURL() {
-    const params = new URLSearchParams();
+    const queryString = buildQueryParams({
+        search: searchInput.value.trim(),
+        category: categoryFilter.value,
+        page: currentPage,
+        sort: sortSelect.value
+    });
 
-    const search = searchInput.value.trim();
-    const category = categoryFilter.value;
+    const newURL = queryString
+        ? `${window.location.pathname}?${queryString}`
+        : window.location.pathname;
 
-    if (search) params.set('search', search);
-    if (category) params.set('category', category);
-    if (currentPage > 1) params.set('page', currentPage);
-
-    const newURL = `${window.location.pathname}?${params.toString()}`;
     window.history.pushState({}, '', newURL);
-
-    const sort = sortSelect.value;
-
-    if (sort) {
-        params.set('sort', sort);
-    }
 }
 
 function renderSkeletons(quantity = ITEMS_PER_PAGE) {
@@ -211,7 +196,7 @@ async function loadProducts() {
     }
 }
 
-const debouncedSearch = debounce((event) => {
+const debouncedSearch = debounce(() => {
     if (!isLoaded) return;
     applyFilters();
 }, DEBOUNCE_DELAY);
